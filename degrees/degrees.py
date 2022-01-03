@@ -1,3 +1,4 @@
+
 import csv
 import sys
 
@@ -91,10 +92,37 @@ def shortest_path(source, target):
 
     If no possible path, returns None.
     """
+    num_explored = 0
+    start = Node(state=source, parent=None, action=None)
+    frontier = QueueFrontier() #use bfs to get optimal path
+    frontier.add(start)
 
-    # TODO
-    raise NotImplementedError
+    explored = set() #use to track already visited nodes
 
+    while True:
+        if frontier.empty(): #Step 1, if frontier is empty, no solution
+            return None #No possible path between them
+
+        node = frontier.remove() #Step 2: remove a node from the frontier 
+        num_explored += 1 #track 
+
+        #Step 3: if node contains goal state, return the solution
+        if node.state == target:
+            path = []
+            while node.parent is not None:
+                path.append((node.action, node.state))
+                node = node.parent
+            path.reverse()
+            return path 
+
+        explored.add(node.state) #Step 5: add node to explored set
+        
+        #Step 6: Expand the node, add resulting nodes to the frontier, if
+        #they are not already in the frontier or explored set. 
+        for action, state in neighbors_for_person(node.state):
+            if not frontier.contains_state(state) and state not in explored:
+                child = Node(state=state, parent=node, action=action)
+                frontier.add(child)
 
 def person_id_for_name(name):
     """
