@@ -2,7 +2,7 @@
 Tic Tac Toe Player
 """
 
-import math, copy 
+import math, copy
 
 X = "X"
 O = "O"
@@ -79,24 +79,67 @@ def winner(board):
         return diagonal[0]
 
 
-
-
 def terminal(board):
     """
     Returns True if game is over, False otherwise.
     """
-    raise NotImplementedError
+    #empty space/s and no winner == not a terminal board
+    if len(actions(board)) > 0 and winner(board) == None: 
+        return False 
+    else:
+        return True 
+
 
 
 def utility(board):
     """
     Returns 1 if X has won the game, -1 if O has won, 0 otherwise.
+    Assumes given board is terminal
     """
-    raise NotImplementedError
-
+    if winner(board) == X:
+        return 1 
+    elif winner(board) == O:
+        return -1 
+    else:
+        return 0
 
 def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
-    raise NotImplementedError
+    if terminal(board):
+        return None 
+    if player(board) == X:
+        return max_value(board)[1]
+    else: 
+        return min_value(board)[1]
+
+# TODO - Refactor max_value and min_value    
+def max_value(board):
+    choices = []
+    best_action = (None, None)
+    if terminal(board):
+        return (utility(board), best_action)
+    best_v = -math.inf 
+    for action in actions(board):
+        curr_v = max(best_v, min_value(result(board, action))[0])
+        if curr_v != best_v:
+            best_v = curr_v
+            best_action = action #TODO make choice random for equally valued moves
+        if best_v == 1: #Pruning - found a winning move 
+            break 
+    return (best_v, best_action)
+
+def min_value(board):
+    best_action = (None, None)
+    if terminal(board):
+        return (utility(board), best_action)
+    best_v = math.inf
+    for action in actions(board):
+        curr_v = min(best_v, max_value(result(board, action))[0])
+        if curr_v != best_v:
+            best_v = curr_v
+            best_action = action #TODO make choice random for equally valued moves
+        if best_v == -1: #Pruning - found a winning move
+            break 
+    return (best_v, best_action)
