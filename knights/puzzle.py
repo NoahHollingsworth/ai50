@@ -12,21 +12,28 @@ CKnave = Symbol("C is a Knave")
 # Puzzle 0
 # A says "I am both a knight and a knave."
 knowledge0 = And(
-    # TODO
+    Biconditional(AKnave, Not(AKnight)), #A can only be a knave if it is not a knight
+    Biconditional(And(AKnight, AKnave), AKnight) #If "I am both a knight and a knave." is true, A is a knight
 )
 
 # Puzzle 1
 # A says "We are both knaves."
 # B says nothing.
 knowledge1 = And(
-    # TODO
+    Biconditional(AKnave, Not(AKnight)), #A can only be a knave if it is not a knight
+    Biconditional(BKnave, Not(BKnight)), #B can only be a knave if it is not a knight
+    Biconditional(And(AKnave, BKnave), AKnight) #A and B can only be knaves if A is telling the truth (must be a knight)
 )
 
 # Puzzle 2
 # A says "We are the same kind."
 # B says "We are of different kinds."
 knowledge2 = And(
-    # TODO
+    Biconditional(AKnave, Not(AKnight)), #A can only be a knave if it is not a knight
+    Biconditional(BKnave, Not(BKnight)), #B can only be a knave if it is not a knight
+    Implication(AKnight, BKnight), #If A is telling the truth, they must both be knights (the reverse is not necessarily true)
+    Biconditional(BKnight, AKnave) #If B is telling the truth, it must be a knight, and A must be a knave
+
 )
 
 # Puzzle 3
@@ -35,7 +42,15 @@ knowledge2 = And(
 # B says "C is a knave."
 # C says "A is a knight."
 knowledge3 = And(
-    # TODO
+    Biconditional(AKnave, Not(AKnight)), #A can only be a knave if it is not a knight
+    Biconditional(BKnave, Not(BKnight)), #B can only be a knave if it is not a knight
+    Biconditional(CKnave, Not(CKnight)), #C can only be a knave if it is not a knight
+    
+    Biconditional(AKnight, CKnight), #if A is a knight, then C is a knight because it told the truth
+    Biconditional(BKnight, CKnave), #If B is a knight, C is a knave is true
+    Biconditional(BKnave, CKnight), #If B is a knave, then C is a knave is false 
+    Implication(AKnight, BKnave), #If A is a knight, then be B must be a knave
+    Implication(BKnight, Biconditional(AKnight, AKnave)) #If B is a knight, A must have said it's a knave, and told the truth
 )
 
 
