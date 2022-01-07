@@ -5,4 +5,5 @@ Projects completed for Harvard's [CS50 Introduction to Artificial Intelligence w
 ## Topic 0: Search 
 ### Projects
 * [Degrees](https://github.com/NoahHollingsworth/ai50/tree/main/degrees)
-* Tic Tac Toe
+* [Tic Tac Toe](https://github.com/NoahHollingsworth/ai50/tree/main/tictactoe)
+* [Knights](https://github.com/NoahHollingsworth/ai50/tree/main/knights)
