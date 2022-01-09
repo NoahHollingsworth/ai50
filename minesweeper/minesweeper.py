@@ -105,27 +105,36 @@ class Sentence():
         """
         Returns the set of all cells in self.cells known to be mines.
         """
-        raise NotImplementedError
-
+        if len(self.cells) == self.count:
+            return self.cells 
+        else:
+            return set()
     def known_safes(self):
         """
         Returns the set of all cells in self.cells known to be safe.
         """
-        raise NotImplementedError
+        if self.count == 0:
+            return self.cells
+        else:
+            return set()
 
     def mark_mine(self, cell):
         """
         Updates internal knowledge representation given the fact that
         a cell is known to be a mine.
         """
-        raise NotImplementedError
+        if cell in self.cells and self.count > 0:
+            self.count -= 1
+            self.cells.remove(cell)
+
 
     def mark_safe(self, cell):
         """
         Updates internal knowledge representation given the fact that
         a cell is known to be safe.
         """
-        raise NotImplementedError
+        if cell in self.cells and self.count > 0: 
+            self.cells.remove(cell)
 
 
 class MinesweeperAI():
@@ -182,7 +191,48 @@ class MinesweeperAI():
             5) add any new sentences to the AI's knowledge base
                if they can be inferred from existing knowledge
         """
-        raise NotImplementedError
+        # Step 1
+        self.moves_made.add(cell)
+        # Step 2
+        self.mark_safe(cell)
+        # Step 3
+        
+        neighbors = set()
+        for i in range(cell[0] - 1, cell[0] + 2):
+            for j in range(cell[1] - 1, cell[1] + 2):
+                if (i, j) != cell and 0 <= i < self.height and 0 <= j < self.width:
+                    neighbors.add((i,j))
+        new_knowledge = Sentence(neighbors, count)
+        # Step 4
+        for mine in self.mines:
+            new_knowledge.mark_mine(mine)
+        for safe in self.safes:
+            new_knowledge.mark_safe(safe)
+        
+        self.knowledge.append(new_knowledge)
+
+        #subset method for inference, described in background
+        for s1, s2 in itertools.combinations(self.knowledge, 2):
+            if s1.cells.issubset(s2.cells):
+                new_sentence = Sentence(s1.cells - s2.cells, s1.count - s2.count)
+                if new_sentence not in self.knowledge and len(s1.cells - s2.cells):
+                    self.knowledge.append(new_sentence)
+            elif s2.cells.issubset(s2.cells):
+                new_sentence = Sentence(s2.cells - s1.cells, s2.count - s1.count)
+                if new_sentence not in self.knowledge and len(s2.cells - s1.cells) > 0:
+                    self.knowledge.append(new_sentence)
+        
+        for sentence in self.knowledge:
+            self.safes = self.safes.union(sentence.known_safes())
+            self.mines = self.mines.union(sentence.known_mines())
+
+        #remove empty sentences
+        try: 
+            while True: 
+                self.knowledge.remove(Sentence(set(), 0))
+        except ValueError:
+            pass
+
 
     def make_safe_move(self):
         """
@@ -193,7 +243,9 @@ class MinesweeperAI():
         This function may use the knowledge in self.mines, self.safes
         and self.moves_made, but should not modify any of those values.
         """
-        raise NotImplementedError
+        if len(self.safes - self.moves_made) > 0:
+            return random.choice(list(self.safes - self.moves_made))
+
 
     def make_random_move(self):
         """
@@ -202,4 +254,16 @@ class MinesweeperAI():
             1) have not already been chosen, and
             2) are not known to be mines
         """
-        raise NotImplementedError
+        choices = set()
+        not_choices = self.moves_made.union(self.mines)
+
+        for i in range(self.height):
+            for j in range(self.width):
+                if (i, j) not in not_choices:
+                    choices.add((i, j))
+        if len(choices) > 0:
+            return random.choice(list(choices))
+        else:
+            return None
+
+        
